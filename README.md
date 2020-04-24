@@ -23,7 +23,7 @@ Kendala yang dialami yaitu belum menemukan algoritma yang tepat sehingga program
 
 ---
 
-Pada bagian k-2.diminta untuk membuat direktori dengan nama
+Pada bagian ke-2.diminta untuk membuat direktori dengan nama
 ```
 encv2_
 ```
@@ -34,3 +34,35 @@ pada bagian 1 dan 2 baik enkripsi maupun dekripsi akan berjalan hingga kedalam d
 
 ---
 
+Pada bagian ke-3, diminta sinkronisasi pada kedua directory yang di sync kan dengan syarat-syarat seperti :
+-Kedua directory memiliki parent directory yang sama.
+-Kedua directory kosong atau memiliki isi yang sama. Dua directory dapat dikatakan memiliki isi yang sama jika memenuhi:Nama dari setiap berkas di dalamnya sama dan Modified time dari setiap berkas di dalamnya tidak berselisih lebih dari 0.1 detik.
+-Sinkronisasi dilakukan ke seluruh isi dari kedua directory tersebut, tidak hanya di satu child directory saja.
+-Sinkronisasi mencakup pembuatan berkas/directory, penghapusan berkas/directory, dan pengubahan berkas/directory.
+
+dimana jika syarat-syarat tersebut tidak terpenuhi maka kedua direktori tidak  tersinkronisasi lagi. dan pada tahap ini tidakdapat menggunakan symbolic links dan thread.
+
+---
+
+Pada bagian ke-4, akan terbentuk file bernama "fs.log" pada direktori "home" pengguna yang berguna untuk menyimpang daftar perintah system call yang dijalankan. dimana pencatatan yang disimpan memiliki format :
+```
+
+[LEVEL]::[yy][mm][dd]-[HH]:[MM]:[SS]::[CMD]::[DESC ...]
+
+
+LEVEL    : Level logging
+yy        : Tahun dua digit
+mm         : Bulan dua digit
+dd         : Hari dua digit
+HH         : Jam dua digit
+MM         : Menit dua digit
+SS         : Detik dua digit
+CMD          : System call yang terpanggil
+DESC      : Deskripsi tambahan (bisa lebih dari satu, dipisahkan dengan ::)
+```
+
+dimana menghasilkan log yang lebih rapi.
+
+LEVEL disini dibagi menjadi INFO dan WARNING, dimana WARNING muncul ketika melakukan syscall rmdir dan unlink saja.
+
+---
