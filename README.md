@@ -2,7 +2,11 @@
 #### ADAM ABELARD GARIBALDI 05111840000125
 #### ALBERTO SANJAYA 05111840000150
 ---
-Pada bagian ke-1.diketahui key
+Pada bagian ke-1.diminta pertama-tama untuk membuat directory
+```
+encv1_
+```
+dimana jika di rename akan menyebabkan directory terenkripsi dimana diketahui key yang digunakan berupa
 ```
 9(ku@AW1[Lmvgax6q`5Y2Ry?+sF!^HKQiBXCUSe&0M.b%rI'7d)o4~VfZ*{#:}ETt$3J-zpc]lnh8,GwP_ND|jO
 ```
@@ -14,6 +18,19 @@ dimana key itu digunakan untuk melakukan enkripsi dan dekripsi. seperti pada con
 ```
 
 dengan memanfaatkan caesar chiper.
+
+Kendala yang dialami yaitu belum menemukan algoritma yang tepat sehingga program belum bisa dicompile dan dijalankan
+
+---
+
+Pada bagian k-2.diminta untuk membuat direktori dengan nama
+```
+encv2_
+```
+
+dimana jika di rename direktori tersebut akan di enkripsi. dimana saat di enkripsi file tersebut akan dibagi-bagi menjadi bagian-bagian sebesar 1024 bytes dan dinamakan menjadi txt dengan tambahan nomor pada belakangnya. 
+
+pada bagian 1 dan 2 baik enkripsi maupun dekripsi akan berjalan hingga kedalam direktori yang berada di dalam directory.
 
 ---
 
