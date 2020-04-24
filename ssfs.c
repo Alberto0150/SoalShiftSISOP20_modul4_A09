@@ -1,4 +1,13 @@
 #define FUSE_USE_VERSION 28
+#include <fuse.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <errno.h>
+#include <sys/time.h>
+
 #define HAVE_SETXATTR
 
 #ifdef HAVE_CONFIG_H
@@ -10,39 +19,201 @@
 #define _XOPEN_SOURCE 500
 #endif
 
-#include <fuse.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <errno.h>
-#include <sys/time.h>
 #ifdef HAVE_SETXATTR
 #include <sys/xattr.h>
 #endif
 
-static int xmp_getattr(const char *path, struct stat *stbuf)
-{
-	int res;
+static  const  char *dirpath = "/home/alberto/praktikum4/tempatngefuze";
+static  const  char cckey = "9(ku@AW1[Lmvgax6q`5Y2Ry?+sF!^HKQiBXCUSe&0M.b%rI'7d)o4~VfZ*{#:}ETt$3J-zpc]lnh8,GwP_ND|jO";
+int ind = 10;
 
-	res = lstat(path, stbuf);
+
+
+//////// no 1 ?????????????????????????????
+//fungsi encrypt
+void encr(char* asaltujuan)
+{
+  char fileasal[1000];
+  char newecn[1000];
+  int i,panjang,j=0;
+  strcpy(fileasal, asaltujuan);
+
+  char* hasil = strtok(fileasal,"/");
+  if(strcmp(hasil,"encv1_")==0)
+  {
+    sprintf(asaltujuan,hasil);
+    hasil = strtok(NULL,"/");
+    while (hasil != NULL)
+    {
+      strcpy(newecn,hasil);
+      panjang = strlen(newecn);
+      for(i=0;i<panjang;i++)
+      {
+        j=0;
+        // while(1)
+        // {
+        //   if(newecn[i] == cckey[j])
+        //   {
+        //     newecn[i] = cckey[j+ind];
+        //   }
+        //   j++;
+        }
+      }
+      strcpy(asaltujuan,newecn);
+      strcat(asaltujuan,"/");
+      strcat(asaltujuan,hasil);
+      hasil=strtok(NULL,"/");
+    }
+  }
+
+}
+
+//fungsi decrypt
+void decr(char* asaltujuan)
+{
+  char fileasal[1000];
+  char newecn[1000];
+  int i,panjang,j;
+  strcpy(fileasal, asaltujuan);
+
+  char* hasil = strtok(fileasal,"/");
+  if(strcmp(hasil,"encv1_")==0)
+  {
+    sprintf(asaltujuan,hasil);
+    hasil = strtok(NULL,"/");
+    while (hasil != NULL)
+    {
+      strcpy(newecn,hasil);
+      panjang = strlen(newecn);
+      for(i=0;i<panjang;i++)
+      {
+        j = strlen(cckey);
+        // while(1)
+        // {
+        //   if(newecn[i] == cckey[j])
+        //   {
+        //     newecn[i] = cckey[j-ind];
+        //   }
+        //   j--;
+        // }
+      }
+      strcpy(asaltujuan,newecn);
+      strcat(asaltujuan,"/");
+      strcat(asaltujuan,hasil);
+      hasil=strtok(NULL,"/");
+    }
+  }
+}
+
+static int xmp_write(const char *path, const char *buf, size_t size,
+		     off_t offset, struct fuse_file_info *fi)
+{
+	int fd;
+	int res;
+	(void) fi;
+	fd = open(path, O_WRONLY);
+	if (fd == -1)
+		return -errno;
+	res = pwrite(fd, buf, size, offset);
 	if (res == -1)
+		res = -errno;
+	close(fd);
+	return res;
+}
+
+// static int xmp_truncate(const char *path, off_t size)
+// {
+// 	int res;
+//   char fpath[1000];
+//   char name[1000];
+//   sprintf(name,"%s",path);
+//   sprintf(fpath, "%s%s",dirpath,name);
+// 	res = truncate(path, size);
+// 	if (res == -1)
+// 		return -errno;
+// 	return 0;
+// }
+
+static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
+off_t offset, struct fuse_file_info *fi)
+{
+	char fpath[1000];
+	if(strcmp(path,"/") == 0)
+	{
+		path=dirpath;
+		sprintf(fpath,"%s",path);
+	}
+	else sprintf(fpath, "%s%s",dirpath,path);
+		int res = 0;
+	DIR *dp;
+	struct dirent *de;
+	(void) offset;
+	(void) fi;
+	dp = opendir(fpath);
+	if (dp == NULL)
 		return -errno;
 
+	while ((de = readdir(dp)) != NULL)
+	{
+		struct stat st;
+		memset(&st, 0, sizeof(st));
+		st.st_ino = de->d_ino;
+		st.st_mode = de->d_type << 12;
+		res = (filler(buf, de->d_name, &st, 0));
+		if(res!=0) break;
+	}
+closedir(dp);
+return 0;
+}
+
+
+
+static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
+struct fuse_file_info *fi)
+{
+	char fpath[1000];
+	if(strcmp(path,"/") == 0)
+	{
+		path=dirpath;
+		sprintf(fpath,"%s",path);
+	}
+	else sprintf(fpath, "%s%s",dirpath,path);
+		int res = 0;
+
+	int fd = 0 ;
+	(void) fi;
+	fd = open(fpath, O_RDONLY);
+	if (fd == -1)
+		return -errno;
+	res = pread(fd, buf, size, offset);
+	if (res == -1)
+		res = -errno;
+
+	close(fd);
+	return res;
+}
+
+static  int  xmp_getattr(const char *path, struct stat *stbuf)
+{
+	int res;
+	char fpath[1000];
+	sprintf(fpath,"%s%s",dirpath,path);
+	res = lstat(fpath, stbuf);
+	if (res == -1)
+		return -errno;
 	return 0;
 }
 
-static int xmp_access(const char *path, int mask)
-{
-	int res;
-
-	res = access(path, mask);
-	if (res == -1)
-		return -errno;
-
-	return 0;
-}
+// static int xmp_access(const char *path, int mask)
+// {
+// 	int res;
+//
+// 	res = access(path, mask);
+// 	if (res == -1)
+// 		return -errno;
+//
+// 	return 0;
+// }
 
 static int xmp_readlink(const char *path, char *buf, size_t size)
 {
@@ -53,33 +224,6 @@ static int xmp_readlink(const char *path, char *buf, size_t size)
 		return -errno;
 
 	buf[res] = '\0';
-	return 0;
-}
-
-
-static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
-		       off_t offset, struct fuse_file_info *fi)
-{
-	DIR *dp;
-	struct dirent *de;
-
-	(void) offset;
-	(void) fi;
-
-	dp = opendir(path);
-	if (dp == NULL)
-		return -errno;
-
-	while ((de = readdir(dp)) != NULL) {
-		struct stat st;
-		memset(&st, 0, sizeof(st));
-		st.st_ino = de->d_ino;
-		st.st_mode = de->d_type << 12;
-		if (filler(buf, de->d_name, &st, 0))
-			break;
-	}
-
-	closedir(dp);
 	return 0;
 }
 
@@ -136,6 +280,7 @@ static int xmp_rmdir(const char *path)
 	return 0;
 }
 
+
 static int xmp_symlink(const char *from, const char *to)
 {
 	int res;
@@ -158,6 +303,16 @@ static int xmp_rename(const char *from, const char *to)
 	return 0;
 }
 
+static int xmp_link(const char *from, const char *to)
+{
+	int res;
+
+	res = link(from, to);
+	if (res == -1)
+		return -errno;
+
+	return 0;
+}
 
 static int xmp_chmod(const char *path, mode_t mode)
 {
@@ -170,12 +325,11 @@ static int xmp_chmod(const char *path, mode_t mode)
 	return 0;
 }
 
-
-static int xmp_truncate(const char *path, off_t size)
+static int xmp_chown(const char *path, uid_t uid, gid_t gid)
 {
 	int res;
 
-	res = truncate(path, size);
+	res = lchown(path, uid, gid);
 	if (res == -1)
 		return -errno;
 
@@ -199,55 +353,17 @@ static int xmp_utimens(const char *path, const struct timespec ts[2])
 	return 0;
 }
 
-static int xmp_open(const char *path, struct fuse_file_info *fi)
-{
-	int res;
-
-	res = open(path, fi->flags);
-	if (res == -1)
-		return -errno;
-
-	close(res);
-	return 0;
-}
-
-static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
-		    struct fuse_file_info *fi)
-{
-	int fd;
-	int res;
-
-	(void) fi;
-	fd = open(path, O_RDONLY);
-	if (fd == -1)
-		return -errno;
-
-	res = pread(fd, buf, size, offset);
-	if (res == -1)
-		res = -errno;
-
-	close(fd);
-	return res;
-}
-
-static int xmp_write(const char *path, const char *buf, size_t size,
-		     off_t offset, struct fuse_file_info *fi)
-{
-	int fd;
-	int res;
-
-	(void) fi;
-	fd = open(path, O_WRONLY);
-	if (fd == -1)
-		return -errno;
-
-	res = pwrite(fd, buf, size, offset);
-	if (res == -1)
-		res = -errno;
-
-	close(fd);
-	return res;
-}
+// static int xmp_open(const char *path, struct fuse_file_info *fi)
+// {
+// 	int res;
+//
+// 	res = open(path, fi->flags);
+// 	if (res == -1)
+// 		return -errno;
+//
+// 	close(res);
+// 	return 0;
+// }
 
 static int xmp_statfs(const char *path, struct statvfs *stbuf)
 {
@@ -333,30 +449,34 @@ static int xmp_removexattr(const char *path, const char *name)
 }
 #endif /* HAVE_SETXATTR */
 
-static struct fuse_operations xmp_oper = {
-	.getattr	= xmp_getattr,
-	.access		= xmp_access,
-	.readlink	= xmp_readlink,
-	.readdir	= xmp_readdir,
-	.mknod		= xmp_mknod,
-	.mkdir		= xmp_mkdir,
-	.symlink	= xmp_symlink,
+
+static struct fuse_operations xmp_oper =
+{
+
+	.getattr = xmp_getattr,
+	.readdir = xmp_readdir,
+	.read = xmp_read,
+	.write =xmp_write,
+	.truncate = xmp_truncate,
+
+  .access		= xmp_access,
+  .readlink	= xmp_readlink,
+  .mknod		= xmp_mknod,
+  .mkdir		= xmp_mkdir,
+  .symlink	= xmp_symlink,
 	.unlink		= xmp_unlink,
 	.rmdir		= xmp_rmdir,
 	.rename		= xmp_rename,
 	.link		= xmp_link,
 	.chmod		= xmp_chmod,
 	.chown		= xmp_chown,
-	.truncate	= xmp_truncate,
-	.utimens	= xmp_utimens,
+  .utimens	= xmp_utimens,
 	.open		= xmp_open,
-	.read		= xmp_read,
-	.write		= xmp_write,
-	.statfs		= xmp_statfs,
-	.create         = xmp_create,
+  .statfs		= xmp_statfs,
+	.create   = xmp_create,
 	.release	= xmp_release,
 	.fsync		= xmp_fsync,
-#ifdef HAVE_SETXATTR
+  #ifdef HAVE_SETXATTR
 	.setxattr	= xmp_setxattr,
 	.getxattr	= xmp_getxattr,
 	.listxattr	= xmp_listxattr,
@@ -364,8 +484,14 @@ static struct fuse_operations xmp_oper = {
 #endif
 };
 
-int main(int argc, char *argv[])
+
+
+int  main(int  argc, char *argv[])
+
 {
-	umask(0);
-	return fuse_main(argc, argv, &xmp_oper, NULL);
+
+umask(0);
+
+return fuse_main(argc, argv, &xmp_oper, NULL);
+
 }
