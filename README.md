@@ -67,6 +67,11 @@ LEVEL disini dibagi menjadi INFO dan WARNING, dimana WARNING muncul ketika melak
 ### KENDALA
 
 Bagian 1: Program sudah bisa di run tapi masih terkendala di hasil fusenya
+
 Bagian 2: Belum dikerjakan karna kurang paham
+
 Bagian 3: Belum dikerjakan karna kurang paham
+
 Bagian 4:
+
+---
