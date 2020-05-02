@@ -136,9 +136,23 @@ void writeW(char *text, char* path)
 
 static int xmp_getattr(const char *path, struct stat *stbuf)
 {
-    writeI("LS", path);
+	char fpath[1000];
+   	writeI("LS", path);
 	int res;
-
+	
+	if(cek(fpath))
+	{
+	char* temp;
+	for(char* itr = fpath; itr < fpath + strlen(fpath) - 6; ++itr)
+	{
+		if(*itr == '/' && !strncmp(itr + 1, "encv1_", 6))
+		{
+			temp = strchr(itr+1, '/');
+		}
+	}
+	decr(temp+1);
+	}
+	
 	res = lstat(path, stbuf);
 	if (res == -1)
 		return -errno;
@@ -148,7 +162,7 @@ static int xmp_getattr(const char *path, struct stat *stbuf)
 static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		       off_t offset, struct fuse_file_info *fi)
 {
-    writeI("CD", path);
+    	writeI("CD", path);
 	DIR *dp;
 	struct dirent *de;
 
@@ -164,6 +178,14 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		memset(&st, 0, sizeof(st));
 		st.st_ino = de->d_ino;
 		st.st_mode = de->d_type << 12;
+		char fullpathname[1000];
+	      	sprintf(fullpathname, "%s/%s", fpath, de->d_name);
+	      	char temp[1000];
+	      	strcpy(temp,de->d_name);
+		if(cek(fullpathname))
+		{
+			  encr(temp);
+		}
 		if (filler(buf, de->d_name, &st, 0))
 			break;
 	}
