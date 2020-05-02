@@ -19,8 +19,6 @@ dimana key itu digunakan untuk melakukan enkripsi dan dekripsi. seperti pada con
 
 dengan memanfaatkan caesar chiper.
 
-Kendala yang dialami yaitu belum menemukan algoritma yang tepat sehingga program belum bisa dicompile dan dijalankan
-
 ---
 
 Pada bagian ke-2.diminta untuk membuat direktori dengan nama
@@ -66,3 +64,9 @@ dimana menghasilkan log yang lebih rapi.
 LEVEL disini dibagi menjadi INFO dan WARNING, dimana WARNING muncul ketika melakukan syscall rmdir dan unlink saja.
 
 ---
+### KENDALA
+
+Bagian 1: Program sudah bisa di run tapi masih terkendala di hasil fusenya
+Bagian 2: Belum dikerjakan karna kurang paham
+Bagian 3: Belum dikerjakan karna kurang paham
+Bagian 4:
