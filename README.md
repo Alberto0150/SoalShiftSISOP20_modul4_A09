@@ -17,7 +17,102 @@ dimana key itu digunakan untuk melakukan enkripsi dan dekripsi. seperti pada con
 “encv1_rahasia/FOTO_PENTING/kelincilucu.jpg” => “encv1_rahasia/ULlL@u]AlZA(/g7D.|_.Da_a.jpg
 ```
 
-dengan memanfaatkan caesar chiper.
+dengan memanfaatkan caesar cipher.
+
+## Program
+
+Fungsi encrypt yang digunakan :
+```
+void encr(char* path)
+{
+  if(!strcmp(path,".") || !strcmp(path,".."))
+  {
+    return;
+  }
+
+  int i;
+  char* ext;
+  char* itr;
+  ext = strrchr(path,'.');
+  if(ext != NULL)
+  {
+      for(itr=path; itr!=ext; itr++)
+      {
+          *itr = map[(int)(*itr)];
+      }
+  }
+  else{
+      for(i=0; i < strlen(path) ; i++)
+      {
+          path[i] = map[(int)path[i]];
+      }
+  }
+}
+```
+Fungsi decrypt yang digunakan:
+
+```
+void decr(char* path)
+{
+  if(!strcmp(path,".") || !strcmp(path,".."))
+  {
+    return;
+  }
+  int i;
+  char* ext;
+  char* itr;
+  ext = strrchr(path,'.');
+  if(ext != NULL)
+  {
+      for(itr=path; itr!=ext; itr++)
+      {
+          *itr = revmap[(int)(*itr)];
+      }
+  }
+  else
+  {
+      for(i=0; i < strlen(path) ; i++)
+      {
+          path[i] = revmap[(int)path[i]];
+      }
+  }
+}
+```
+Fungsi untuk Caesar Cipher :
+```
+void ganti()
+{
+  for(int i=0; i<200; ++i){
+      map[i] = (char) i;
+      revmap[i] = (char) i;
+  }
+
+  for(int i=0; i<strlen(cckey); i++){
+      map[(int)*(cckey + i)] = *(cckey + (i + nominal) % strlen(cckey) );
+      revmap[(int)*(cckey + (i + nominal) % strlen(cckey))] = *(cckey + i);
+  }
+}
+```
+
+Fungsi untuk mengecek :
+```
+bool cek(char* path){
+    char fullpath[1024];
+    sprintf(fullpath, "%s%s", dirpath, path);
+    char* pattern = "encv1_";
+
+    char* last = strrchr(fullpath, '/');
+
+    if(last){
+        for(char* itr = fullpath; itr < last - strlen(pattern) ; ++itr){
+            if(*itr == '/'){
+                if(!strncmp(itr + 1, pattern, strlen(pattern))) return true;
+            }
+        }
+    }
+    return false;
+}
+```
 
 ---
 
