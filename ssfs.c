@@ -12,7 +12,97 @@
 #include<sys/wait.h>
 #include<stdbool.h>
 
-char dirpath[50]  = "/home/adam/Documents";
+char dirpath[50]  = "/home/adam/Documents";  // TERGANTUNG PENGGUNA
+char cckey[] = "9(ku@AW1[Lmvgax6q`5Y2Ry?+sF!^HKQiBXCUSe&0M.b%rI'7d)o4~VfZ*{#:}ETt$3J-zpc]lnh8,GwP_ND|jO" ;
+char map[200], revmap[200];
+int nominal =10;
+
+//BAGIAN 1
+//fungsi encrypt 1
+void encr(char* path)
+{
+  if(!strcmp(path,".") || !strcmp(path,".."))
+  {
+    return;
+  }
+
+  int i;
+  char* ext;
+  char* itr;
+  ext = strrchr(path,'.');
+  if(ext != NULL)
+  {
+      for(itr=path; itr!=ext; itr++)
+      {
+          *itr = map[(int)(*itr)];
+      }
+  }
+  else{
+      for(i=0; i < strlen(path) ; i++)
+      {
+          path[i] = map[(int)path[i]];
+      }
+  }
+}
+
+//fungsi decrypt 1
+void decr(char* path)
+{
+  if(!strcmp(path,".") || !strcmp(path,".."))
+  {
+    return;
+  }
+  int i;
+  char* ext;
+  char* itr;
+  ext = strrchr(path,'.');
+  if(ext != NULL)
+  {
+      for(itr=path; itr!=ext; itr++)
+      {
+          *itr = revmap[(int)(*itr)];
+      }
+  }
+  else
+  {
+      for(i=0; i < strlen(path) ; i++)
+      {
+          path[i] = revmap[(int)path[i]];
+      }
+  }
+}
+
+void ganti()
+{
+  for(int i=0; i<200; ++i){
+      map[i] = (char) i;
+      revmap[i] = (char) i;
+  }
+
+  for(int i=0; i<strlen(cckey); i++){
+      map[(int)*(cckey + i)] = *(cckey + (i + nominal) % strlen(cckey) );
+      revmap[(int)*(cckey + (i + nominal) % strlen(cckey))] = *(cckey + i);
+  }
+}
+
+bool cek(char* path){
+    char fullpath[1024];
+    sprintf(fullpath, "%s%s", dirpath, path);
+    char* pattern = "encv1_";
+
+    char* last = strrchr(fullpath, '/');
+
+    if(last){
+        for(char* itr = fullpath; itr < last - strlen(pattern) ; ++itr){
+            if(*itr == '/'){
+                if(!strncmp(itr + 1, pattern, strlen(pattern))) return true;
+            }
+        }
+    }
+    return false;
+}
+
+//BAGIAN 4
 
 void writeI(char *text, char* path)
 {
